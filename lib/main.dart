@@ -1,4 +1,3 @@
-// Importa el paquete de Material Design
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,70 +10,86 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false, // Quita la banda de "Debug"
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Act. 3.4 - Demo de Widgets'),
+      appBar: AppBar(
+        title: const Text(
+          'Act. 3.5 - Home Screen',
+          style: TextStyle(
+            fontSize: 30.0,                   // Tamaño de fuente
+            fontWeight: FontWeight.bold,      // Grosor (negrita)
+            color: Colors.white,              // Color del texto
+            shadows: [                        // Sombras (igual que el texto del body)
+              Shadow(blurRadius: 15.0, color: Colors.black, offset: Offset(4.0, 4.0),)
+            ],
+          ),
         ),
+        backgroundColor: Colors.transparent, // Barra transparente
+        elevation: 0, // Sin sombra
+      ),
+        // Hacemos que la barra sea transparente y que el body
+        // se extienda detrás de ella.
+        extendBodyBehindAppBar: true,
         
-        // --- Uso de COLUMN ---
-        // COLUMN organiza a sus hijos de forma vertical (uno debajo del otro).
-        body: Column(
-          // mainAxisAlignment.spaceEvenly distribuye el espacio vertical
-          // de manera uniforme entre los hijos.
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        // --- Uso de STACK ---
+        // Usamos un STACK para poner el contenido (textos, icono)
+        // ENCIMA de la imagen de fondo.
+        body: Stack(
+          // fit: StackFit.expand hace que los hijos (como la imagen)
+          // llenen todo el espacio del Stack.
+          fit: StackFit.expand, 
           children: [
             
-            // --- Uso de CONTAINER y TEXT ---
-            // CONTAINER es una "caja" que nos permite dar estilo
-            // (color, padding, márgenes, bordes, etc.).
-            // TEXT, como su nombre indica, muestra un texto.
-            Container(
-              color: Colors.blue[100], // Color de fondo
-              padding: const EdgeInsets.all(16.0), // Espacio interno
-              child: const Text(
-                '1. Esto es un TEXT dentro de un CONTAINER.',
-                style: TextStyle(fontSize: 18),
+            // --- 1. IMAGEN DE FONDO (Uso de Image) ---
+            // Este es el primer widget en el Stack (el del fondo).
+            Image.asset(
+              'assets/background.jpg', // ¡Cambia esto por el nombre de tu imagen!
+              fit: BoxFit.cover, // Hace que la imagen cubra toda la pantalla
+            ),
+
+            // --- 2. CONTENIDO (Icono y Textos) ---
+            // Este es el segundo widget en el Stack (encima de la imagen).
+            // Usamos Center y Column para organizar el contenido.
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  
+                  // --- Uso de ICON (Criterio de evaluación) ---
+                  const Icon(
+                    Icons.movie_filter_sharp, // Un ícono de claqueta de cine
+                    color: Colors.white,
+                    size: 100.0,
+                    shadows: [Shadow(blurRadius: 10.0, color: Colors.black)],
+                  ),
+                  
+                  const SizedBox(height: 20), // Un espacio separador
+
+                  // --- Nombre de la Aplicación (Instrucción) ---
+                  const Text(
+                    'Cinephile Catalog',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 34.0,
+                      fontWeight: FontWeight.bold,
+                      shadows: [Shadow(blurRadius: 10.0, color: Colors.black)],
+                    ),
+                  ),
+
+                  const SizedBox(height: 10), // Un espacio separador
+                  
+                  // --- Mensaje "Hello World" (Criterio de evaluación) ---
+                  const Text(
+                    'Hello World! Bienvenido.', // Cumple ambos requisitos
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontStyle: FontStyle.italic,
+                      shadows: [Shadow(blurRadius: 10.0, color: Colors.black)],
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-            // --- Uso de ROW ---
-            // ROW organiza a sus hijos de forma horizontal (uno al lado del otro).
-            const Row(
-              // mainAxisAlignment.spaceAround distribuye el espacio horizontal
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text('2. Hijo A (Row)'),
-                Text('Hijo B (Row)'),
-                Text('Hijo C (Row)'),
-              ],
-            ),
-
-            // --- Uso de STACK ---
-            // STACK apila widgets uno encima del otro.
-            // Es perfecto para poner texto sobre una imagen o un fondo.
-            Stack(
-              // Alignment.center centra a los hijos (uno encima del otro)
-              alignment: Alignment.center,
-              children: [
-                // Widget base (abajo)
-                Container(
-                  width: 250,
-                  height: 100,
-                  color: Colors.green[200],
-                ),
-                // Widget superior (encima)
-                Container(
-                  width: 200,
-                  height: 50,
-                  color: Colors.green[400],
-                ),
-                // Widget más superior (encima de todos)
-                const Text(
-                  '3. Esto es un STACK (texto sobre contenedores)',
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ],
             ),
           ],
         ),
