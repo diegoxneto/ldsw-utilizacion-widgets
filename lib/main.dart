@@ -1,58 +1,26 @@
-import 'dart:convert'; // Para decodificar la respuesta JSON
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // Importa el paquete http
+// 1. Importa los paquetes de Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// 2. Importa el archivo de configuración que se autogeneró
+import 'firebase_options.dart';
 
-// --- 1. MODELO DE DATOS ACTUALIZADO ---
-// Ahora también guardamos la URL de la imagen (imageUrl)
-class Pokemon {
-  final String name;
-  final String imageUrl; 
+// 3. El main() AHORA DEBE SER ASÍNCRONO
+void main() async {
+  // 4. Asegúrate de que Flutter esté inicializado
+  WidgetsFlutterBinding.ensureInitialized();
 
-  const Pokemon({
-    required this.name,
-    required this.imageUrl, 
-  });
+  // 5. Inicializa Firebase usando el archivo autogenerado
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-  // --- 2. CONSTRUCTOR 'fromJson' ACTUALIZADO ---
-  factory Pokemon.fromJson(Map<String, dynamic> json) {
-    return Pokemon(
-      name: json['name'] ?? 'Nombre no encontrado', // Respaldo para el nombre
-      imageUrl: json['sprites']['other']['official-artwork']['front_default'] ?? 'https://via.placeholder.com/150'    );
-  }
-}
-
-// --- FUNCIÓN DE PETICIÓN HTTP (Esta no cambia) ---
-Future<Pokemon> fetchPokemon() async {
-  final response = await http
-      .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/gengar'));
-
-  if (response.statusCode == 200) {
-    return Pokemon.fromJson(jsonDecode(response.body));
-  } else {
-    throw Exception('Error al cargar el Pokémon');
-  }
-}
-
-// --- INTERFAZ DE USUARIO ---
-void main() {
+  // 6. Ejecuta la app
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  late Future<Pokemon> futurePokemon;
-
-  @override
-  void initState() {
-    super.initState();
-    futurePokemon = fetchPokemon();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,41 +28,39 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Act. 3.6 - HTTP con Imagen'),
+          title: const Text('Act. 3.7 - Integración Firebase'),
         ),
         body: Center(
-          child: FutureBuilder<Pokemon>(
-            future: futurePokemon,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasData) {
-                
-                // --- 3. UI ACTUALIZADA ---
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.network(
-                      snapshot.data!.imageUrl,
-                      height: 300,
-                      width: 300,
-                    ),
-                    const SizedBox(height: 20), 
-                    Text(
-                      snapshot.data!.name.toUpperCase(),
-                      style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                );
-              
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-              return const CircularProgressIndicator();
+          // 7. Vamos a crear un botón para probar la base de datos
+          child: ElevatedButton(
+            child: const Text('Agregar Película de Prueba'),
+            onPressed: () {
+              // Esta función se ejecuta al presionar el botón
+              agregarPelicula();
             },
           ),
         ),
       ),
     );
+  }
+
+  // 8. Esta es la función que CUMPLE EL CRITERIO DE EVALUACIÓN
+  void agregarPelicula() async {
+    try {
+      // Obtiene la "colección" (la carpeta) de películas en Firestore
+      final coleccion = FirebaseFirestore.instance.collection('peliculas');
+
+      // Agrega un nuevo "documento" (un archivo) con datos
+      await coleccion.add({
+        'titulo': 'Pelicula de Prueba',
+        'director': 'Yo Mismo',
+        'anio': 2025
+      });
+
+      print('¡Película agregada con éxito!');
+
+    } catch (e) {
+      print('Error al agregar la película: $e');
+    }
   }
 }
