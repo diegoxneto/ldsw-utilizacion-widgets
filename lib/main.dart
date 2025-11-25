@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-// 1. Importa los paquetes de Firebase
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-// 2. Importa el archivo de configuración que se autogeneró
+import 'package:firebase_auth/firebase_auth.dart'; // 1. Importamos Auth
 import 'firebase_options.dart';
 
-// 3. El main() AHORA DEBE SER ASÍNCRONO
-void main() async {
-  // 4. Asegúrate de que Flutter esté inicializado
-  WidgetsFlutterBinding.ensureInitialized();
+import 'screens/home_screen.dart';
+import 'screens/catalog_screen.dart';
 
-  // 5. Inicializa Firebase usando el archivo autogenerado
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  // 6. Ejecuta la app
   runApp(const MyApp());
 }
 
@@ -26,41 +21,34 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Act. 3.7 - Integración Firebase'),
-        ),
-        body: Center(
-          // 7. Vamos a crear un botón para probar la base de datos
-          child: ElevatedButton(
-            child: const Text('Agregar Película de Prueba'),
-            onPressed: () {
-              // Esta función se ejecuta al presionar el botón
-              agregarPelicula();
-            },
-          ),
-        ),
+      title: 'Catálogo de Películas',
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.deepPurple,
       ),
+      home: AuthGate(),
     );
   }
+}
 
-  // 8. Esta es la función que CUMPLE EL CRITERIO DE EVALUACIÓN
-  void agregarPelicula() async {
-    try {
-      // Obtiene la "colección" (la carpeta) de películas en Firestore
-      final coleccion = FirebaseFirestore.instance.collection('peliculas');
+// --- WIDGET "VIGILANTE" ---
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
 
-      // Agrega un nuevo "documento" (un archivo) con datos
-      await coleccion.add({
-        'titulo': 'Pelicula de Prueba',
-        'director': 'Yo Mismo',
-        'anio': 2025
-      });
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      // 2. Escucha los cambios de estado de autenticación
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // 3. Si el snapshot está cargando, muestra un indicador
+        if (!snapshot.hasData) {
+          // 4. Si NO hay datos (usuario no loggeado), muestra la Home
+          return const HomeScreen();
+        }
 
-      print('¡Película agregada con éxito!');
-
-    } catch (e) {
-      print('Error al agregar la película: $e');
-    }
+        // 5. Si SÍ hay datos (usuario loggeado), muestra el Catálogo
+        return const CatalogScreen();
+      },
+    );
   }
 }
